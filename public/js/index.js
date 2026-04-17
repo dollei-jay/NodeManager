@@ -933,6 +933,41 @@ async function saveNotifySettings() {
     }
 }
 
+async function runCronCheck() {
+    const btn = document.getElementById('btnRunCron');
+    if (!btn) return;
+
+    if (!confirm('确定要立即执行全员检查并推送 TG 消息吗？\n控制台将显示详细的检查日志。')) {
+        return;
+    }
+
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在执行...';
+
+    try {
+        const res = await fetch('/api/system/run-cron', {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert('✅ 执行成功！\n请检查 Telegram 机器人或查看服务器日志。');
+        } else {
+            alert('❌ 执行失败: ' + (data.message || '未知错误'));
+        }
+    } catch (e) {
+        console.error(e);
+        alert('❌ 请求失败');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+    }
+}
+
 function closeNotifyModal() {
     document.getElementById('notifyModal').style.display = 'none';
 }

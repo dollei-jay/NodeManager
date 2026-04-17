@@ -7,6 +7,7 @@ const cors = require('cors');
 const compression = require('compression');
 const cron = require('node-cron');
 const runCronJob = require('./services/cronJob');
+const { sendToAdmin } = require('./services/telegramService');
 
 process.env.PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
@@ -103,48 +104,36 @@ app.post('/api/settings/notify/test', async (req, res) => {
         return res.status(400).json({ message: '缺少 Token 或 Chat ID' });
     }
 
-    const message = "🔔 NodeManager 通知测试\n\n恭喜！您的通知配置正确。";
-    const url = `https://api.telegram.org/bot${token}/sendMessage`;
-    const data = JSON.stringify({
-        chat_id: chatId,
-        text: message
-    });
+    const message = "🔔 **NodeManager 通知测试**\n\n恭喜！您的通知配置正确。";
+    
+    try {
+        await sendToAdmin(message, token, chatId);
+        res.json({ message: 'ok' });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ message: '发送失败: ' + (e.message || '未知错误') });
+    }
+});
 
-    const request = https.request(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(data)
-        }
-    }, (response) => {
-        let body = '';
-        response.on('data', (chunk) => body += chunk);
-        response.on('end', () => {
-            if (response.statusCode === 200) {
-                res.json({ message: 'ok' });
-            } else {
-                try {
-                    const err = JSON.parse(body);
-                    res.status(400).json({ message: err.description || 'Telegram API 报错' });
-                } catch (e) {
-                    res.status(400).json({ message: '发送失败' });
-                }
-            }
-        });
-    });
-
-    request.on('error', (e) => {
-        res.status(500).json({ message: '网络请求失败' });
-    });
-
-    request.write(data);
-    request.end();
+// 新增：手动触发定时任务检查
+app.post('/api/system/run-cron', async (req, res) => {
+    try {
+        const config = getEffectiveConfig();
+        // 临时同步环境变量，确保 cronJob 内部能读到最新配置
+        if(config.tg_token) process.env.TELEGRAM_BOT_TOKEN = config.tg_token;
+        if(config.tg_chat_id) process.env.TELEGRAM_ADMIN_ID = config.tg_chat_id;
+        
+        await runCronJob();
+        res.json({ message: '定时任务检查已手动触发，请查看控制台日志或 Telegram 消息。' });
+    } catch (e) {
+        res.status(500).json({ message: '执行失败: ' + e.message });
+    }
 });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/subs', subRoutes);
 
-cron.schedule('0 30 9 * * *', () => {
+cron.schedule('0 0 18 * * *', () => {
     const config = getEffectiveConfig();
     if(config.tg_token) process.env.TELEGRAM_BOT_TOKEN = config.tg_token;
     if(config.tg_chat_id) process.env.TELEGRAM_ADMIN_ID = config.tg_chat_id;

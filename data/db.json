@@ -6,12 +6,13 @@
       "name": "itdog.cn",
       "type": "测试",
       "startDate": "2025-10-12",
-      "expireDate": "2026-02-12",
+      "expireDate": "2026-04-18",
       "url": "https://itdog.cn/",
       "iconUrl": "https://ico.faviconkit.net/favicon/itdog.cn?sz=64",
       "note": "",
       "notifyDays": 7,
-      "isNotified": false
+      "isNotified": false,
+      "repeat": "never"
     },
     {
       "id": "1768372013726",

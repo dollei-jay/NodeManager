@@ -1,9 +1,9 @@
 const axios = require('axios');
 const { HttpsProxyAgent } = require('https-proxy-agent');
 
-const sendToAdmin = async (message) => {
-  const token = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_ADMIN_ID;
+const sendToAdmin = async (message, customToken = null, customChatId = null) => {
+  const token = customToken || process.env.TELEGRAM_BOT_TOKEN;
+  const chatId = customChatId || process.env.TELEGRAM_ADMIN_ID;
   const proxyAddress = process.env.HTTP_PROXY;
 
   if (!token || !chatId) {

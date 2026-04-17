@@ -220,6 +220,16 @@
                     <label>Telegram Chat ID</label>
                     <input type="text" id="tgChatId" placeholder="例如: 123456789">
                 </div>
+                <!-- 新增触发区域 -->
+                <div style="background: var(--light); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 5px;">
+                    <div style="font-size: 11px; color: var(--gray); font-weight: 600; margin-bottom: 8px; text-transform: uppercase;">系统任务调试</div>
+                    <button type="button" class="btn-black" id="btnRunCron" onclick="runCronCheck()" style="margin-top: 0; padding: 10px; font-size: 13px;">
+                        <i class="fas fa-sync-alt"></i> 立即执行全员到期检查
+                    </button>
+                    <div style="font-size: 11px; color: var(--gray); margin-top: 8px; line-height: 1.4;">
+                        点击后将手动触发每日定时任务逻辑，对全员订阅进行扫描并发送 TG 通知。
+                    </div>
+                </div>
             </div>
             <div class="modal-actions" style="grid-template-columns: repeat(3, 1fr);">
                 <button type="button" class="btn-cancel" onclick="closeNotifyModal()">取消</button>
