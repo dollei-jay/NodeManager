@@ -133,7 +133,7 @@ app.post('/api/system/run-cron', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/subs', subRoutes);
 
-cron.schedule('0 0 18 * * *', () => {
+cron.schedule('0 0 8 * * *', () => {
     const config = getEffectiveConfig();
     if(config.tg_token) process.env.TELEGRAM_BOT_TOKEN = config.tg_token;
     if(config.tg_chat_id) process.env.TELEGRAM_ADMIN_ID = config.tg_chat_id;
