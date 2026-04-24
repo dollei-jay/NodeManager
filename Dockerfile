@@ -12,6 +12,5 @@ COPY public ./public
 COPY routes ./routes
 COPY services ./services
 COPY utils ./utils
-COPY data ./data
 
 CMD ["node", "app.js"]
